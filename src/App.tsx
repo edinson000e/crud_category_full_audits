@@ -1,7 +1,20 @@
 import React, { useMemo, useState } from "react";
 import "./App.css";
 
-const initialCategories = [
+
+interface Categories{
+  id: number;
+  name: string;
+  order: number;
+  category_parent: number;
+}
+
+interface CategoryWithParent {
+  parent_id: number;
+  categories: Categories[]
+}
+
+const initialCategories: Categories[] = [
   {
     id: 1,
     name: "test 1",
@@ -53,22 +66,37 @@ const initialCategories = [
 ];
 
 function App() {
-  const [categories, setCategories] = useState(initialCategories);
+  const [categories, setCategories] = useState<Categories[]>(initialCategories);
 
   console.log("setCategories",setCategories)
-  const categoriesWithParent = useMemo(() => {
+  const categoriesWithParents = useMemo(() => {
 
-    return categories.reduce((allCategoriesWithParent:any, category:any)=> {
+    return categories.reduce(
+      (allCategoriesWithParent: CategoryWithParent[], category: Categories) => {
+        const copyAllCategoriesWithParents = [...allCategoriesWithParent];
+        const indexParent = copyAllCategoriesWithParents.findIndex(({ parent_id }) => parent_id === category.category_parent)
+        if (indexParent > -1) {
+          const copyCategoryWithParent = [...copyAllCategoriesWithParents[indexParent].categories]
+          copyCategoryWithParent.push(category);
+          copyAllCategoriesWithParents[indexParent].categories =
+            copyCategoryWithParent.sort(function (a, b) {
+              return a.order - b.order;
+            });
+        } else {
+          copyAllCategoriesWithParents.push({
+            parent_id: category.category_parent,
+            categories: [category]
+          })
+        }
 
-      const copyAllCategoriesWithParents = [...allCategoriesWithParent]
-
-
-      return copyAllCategoriesWithParents
-    },[])
+        return copyAllCategoriesWithParents;
+      },
+      []
+    );
 
   }, [categories]);
 
-  console.log("cateogir",categoriesWithParent)
+  console.log("cateogir",categoriesWithParents)
 
   return <div className="App"></div>;
 }
