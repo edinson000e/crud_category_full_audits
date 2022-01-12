@@ -1,17 +1,18 @@
 import React, { useMemo, useState } from "react";
 import "./App.css";
+import { SubCategories } from "./components";
+ 
 
-
-interface Categories{
+export interface Categories {
   id: number;
   name: string;
   order: number;
   category_parent: number;
 }
 
-interface CategoryWithParent {
+export interface CategoryWithParent {
   parent_id: number;
-  categories: Categories[]
+  categories: Categories[];
 }
 
 const initialCategories: Categories[] = [
@@ -48,7 +49,7 @@ const initialCategories: Categories[] = [
   {
     id: 6,
     name: "test 2.2",
-    order: 1,
+    order: 2,
     category_parent: 2,
   },
   {
@@ -68,15 +69,18 @@ const initialCategories: Categories[] = [
 function App() {
   const [categories, setCategories] = useState<Categories[]>(initialCategories);
 
-  console.log("setCategories",setCategories)
+  console.log("setCategories", setCategories);
   const categoriesWithParents = useMemo(() => {
-
     return categories.reduce(
       (allCategoriesWithParent: CategoryWithParent[], category: Categories) => {
         const copyAllCategoriesWithParents = [...allCategoriesWithParent];
-        const indexParent = copyAllCategoriesWithParents.findIndex(({ parent_id }) => parent_id === category.category_parent)
+        const indexParent = copyAllCategoriesWithParents.findIndex(
+          ({ parent_id }) => parent_id === category.category_parent
+        );
         if (indexParent > -1) {
-          const copyCategoryWithParent = [...copyAllCategoriesWithParents[indexParent].categories]
+          const copyCategoryWithParent = [
+            ...copyAllCategoriesWithParents[indexParent].categories,
+          ];
           copyCategoryWithParent.push(category);
           copyAllCategoriesWithParents[indexParent].categories =
             copyCategoryWithParent.sort(function (a, b) {
@@ -85,20 +89,38 @@ function App() {
         } else {
           copyAllCategoriesWithParents.push({
             parent_id: category.category_parent,
-            categories: [category]
-          })
+            categories: [category],
+          });
         }
 
         return copyAllCategoriesWithParents;
       },
       []
     );
-
   }, [categories]);
 
-  console.log("cateogir",categoriesWithParents)
+  const initCategoryWithParent = useMemo(
+    () =>
+      categoriesWithParents.find(({ parent_id }) => parent_id === 0)
+        ?.categories || [],
+    [categoriesWithParents]
+  );
 
-  return <div className="App"></div>;
+  return (
+    <div className="App">
+      {initCategoryWithParent.map(({ name, id }: Categories) => {
+        return (
+          <li>
+            {name}
+            <SubCategories
+              search_parent_id={id}
+              allCategories={categoriesWithParents}
+            />
+          </li>
+        );
+      })}
+    </div>
+  );
 }
 
 export default App;
