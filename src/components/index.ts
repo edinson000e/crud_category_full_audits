@@ -1,1 +1,1 @@
-export * from "./SubCategories"
+export * from "./MenuCategories"

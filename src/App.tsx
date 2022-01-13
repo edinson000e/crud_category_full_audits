@@ -1,6 +1,7 @@
 import React from "react";
 import { useMemo, useState } from "react";
 import "./App.css";
+import { MenuCategories } from "./components";
 
 export interface Categories {
   id: number;
@@ -91,9 +92,13 @@ function App() {
   }, [categories]);
 
   console.log("categories", categoriesWithParents);
-  console.log("set", setCategories);
 
-  return <div className="App">dsfdsfds</div>;
+  return (
+    <div className="App">
+      holaaaa
+      <MenuCategories allCategories={categoriesWithParents} />
+    </div>
+  );
 }
 
 export default App;
